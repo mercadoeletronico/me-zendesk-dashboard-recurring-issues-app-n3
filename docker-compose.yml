@@ -1,0 +1,41 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: zd-dashboard-backend
+    ports:
+      - '3001:3001'
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - N8N_WEBHOOK_URL=${N8N_WEBHOOK_URL}
+      - ZD_SUBDOMAIN=${ZD_SUBDOMAIN}
+      - ZD_EMAIL=${ZD_EMAIL}
+      - ZD_TOKEN=${ZD_TOKEN}
+      - CORS_ORIGIN=http://localhost:5173
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3001/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: zd-dashboard-frontend
+    ports:
+      - '5173:5173'
+    environment:
+      - VITE_API_URL=http://localhost:3001
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
