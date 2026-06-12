@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { Ticket, ChartFilter, PreFilter } from '@/types';
-import { firstDayOfMonth, today } from '@/utils/format';
+import { daysAgo, today } from '@/utils/format';
 
 interface DashboardState {
   tickets: Ticket[];
@@ -36,7 +36,7 @@ const DEFAULT_PRE_FILTER: PreFilter = {
   brand:     'ME Buyers',
   tipoZd:    'incident',
   subtipo:   '',
-  dateStart: firstDayOfMonth(),
+  dateStart: daysAgo(7),
   dateEnd:   today(),
 };
 
@@ -50,13 +50,16 @@ const TIPO_ZD_PT: Record<string, string> = {
 function applyAllFilters(tickets: Ticket[], chartFilter: ChartFilter, preFilter: PreFilter): Ticket[] {
   const preTipoPT = preFilter.tipoZd ? TIPO_ZD_PT[preFilter.tipoZd] ?? '' : '';
   return tickets.filter((t) => {
+    // ── Filtros de gráfico (clique nos charts) ─────────────────────────────
     if (chartFilter.cliente && t.cliente !== chartFilter.cliente) return false;
     if (chartFilter.tipo    && t.tipo    !== chartFilter.tipo)    return false;
     if (chartFilter.subtipo && t.subtipo !== chartFilter.subtipo) return false;
     if (chartFilter.heatmap) {
       if (t.subtipo !== chartFilter.heatmap.subtipo || t.data !== chartFilter.heatmap.data) return false;
     }
-    if (preTipoPT && t.tipo !== preTipoPT) return false;
+    // ── Filtros de formulário (dropdowns) ─────────────────────────────────
+    if (preFilter.brand   && t.brand   !== preFilter.brand)  return false;
+    if (preTipoPT         && t.tipo    !== preTipoPT)        return false;
     if (preFilter.subtipo && t.subtipo !== preFilter.subtipo) return false;
     return true;
   });
@@ -82,7 +85,7 @@ export const useDashboardStore = create<DashboardState>()(
       chartFilter: DEFAULT_CHART_FILTER,
       preFilter: { ...DEFAULT_PRE_FILTER },
       committedFilter: { ...DEFAULT_PRE_FILTER },
-      isLoading: false, error: null, hasSearched: false,
+      isLoading: false, error: null, hasSearched: true,
 
       setTickets: (tickets, brands) => {
         const { chartFilter, preFilter } = get();
@@ -120,7 +123,21 @@ export const useDashboardStore = create<DashboardState>()(
         set({ chartFilter: newFilter, filteredTickets: applyAllFilters(tickets, newFilter, preFilter) });
       },
 
-      setPreFilter: (filter) => set((state) => ({ preFilter: { ...state.preFilter, ...filter } })),
+      // Filtros de display (brand, tipoZd, subtipo) → re-filtra na hora sem nova busca
+      // Filtros de data (dateStart, dateEnd) → apenas atualiza o formulário, busca é manual
+      setPreFilter: (filter) => {
+        const state = get();
+        const newPreFilter = { ...state.preFilter, ...filter };
+        const isDisplayFilter = 'brand' in filter || 'tipoZd' in filter || 'subtipo' in filter;
+        if (isDisplayFilter && state.tickets.length > 0) {
+          set({
+            preFilter: newPreFilter,
+            filteredTickets: applyAllFilters(state.tickets, state.chartFilter, newPreFilter),
+          });
+        } else {
+          set({ preFilter: newPreFilter });
+        }
+      },
 
       commitSearch: () => set((state) => ({ committedFilter: { ...state.preFilter }, hasSearched: true })),
 
@@ -132,7 +149,7 @@ export const useDashboardStore = create<DashboardState>()(
         chartFilter: DEFAULT_CHART_FILTER,
         preFilter: { ...DEFAULT_PRE_FILTER },
         committedFilter: { ...DEFAULT_PRE_FILTER },
-        isLoading: false, error: null, hasSearched: false,
+        isLoading: false, error: null, hasSearched: true,
       }),
     }),
     { name: 'dashboard' }

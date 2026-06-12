@@ -36,6 +36,15 @@ export function today(): string {
   return `${year}-${month}-${day}`;
 }
 
+export function daysAgo(n: number): string {
+  const now = new Date();
+  now.setDate(now.getDate() - n);
+  const year  = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day   = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export function monthsAgo(n: number): string {
   const now = new Date();
   now.setMonth(now.getMonth() - n);

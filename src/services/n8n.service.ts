@@ -32,15 +32,15 @@ class N8nService {
 
   async fetchPage(request: TicketsRequest): Promise<TicketsResponse> {
     const payload: N8nWebhookPayload = {
-      email:     getEnv('ZD_EMAIL'),
-      token:     getEnv('ZD_TOKEN'),
-      subdomain: getEnv('ZD_SUBDOMAIN'),
-      dateStart: request.dateStart,
-      dateEnd:   request.dateEnd,
-      ...(request.brand         ? { brand:         request.brand         } : {}),
-      ...(request.tipoFilter    ? { tipoFilter:    request.tipoFilter    } : {}),
-      ...(request.subtipoFilter ? { subtipoFilter: request.subtipoFilter } : {}),
-      ...(request.cursor        ? { cursor:        request.cursor        } : {}),
+      email:         getEnv('ZD_EMAIL'),
+      token:         getEnv('ZD_TOKEN'),
+      subdomain:     getEnv('ZD_SUBDOMAIN'),
+      dateStart:     request.dateStart,
+      dateEnd:       request.dateEnd,
+      brand:         request.brand         ?? '',
+      tipoFilter:    request.tipoFilter    ?? '',
+      subtipoFilter: request.subtipoFilter ?? '',
+      ...(request.cursor ? { cursor: request.cursor } : {}),
     };
 
     console.log(`[n8n] fetchPage — cursor: ${request.cursor ?? 'none'}`);
