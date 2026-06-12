@@ -40,7 +40,7 @@ export function useChartFilter() {
   return {
     chartFilter, hasActiveFilter, activeFilterCount,
     handleClienteClick, handleTipoClick, handleSubtipoClick, handleHeatmapClick,
-    clearChartFilter, clearChartFilterKey,
+    setChartFilter, clearChartFilter, clearChartFilterKey,
   };
 }
 
