@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { n8nService } from '@/services/n8n.service';
+import { zdService } from '@/services/zendesk.service';
 
 const schema = z.object({
   dateStart:     z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'dateStart must be YYYY-MM-DD'),
@@ -28,13 +28,13 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const result = await n8nService.fetchPage(parsed.data);
+    const result = await zdService.fetchPage(parsed.data);
     return NextResponse.json(result);
   } catch (err) {
     const error = err as Error;
     console.error('[api/tickets] Error:', error.message);
     return NextResponse.json(
-      { error: { message: `Failed to fetch tickets: ${error.message}` } },
+      { error: { message: `Erro ao buscar tickets: ${error.message}` } },
       { status: 502 }
     );
   }

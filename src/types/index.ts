@@ -35,15 +35,15 @@ export interface SortConfig {
   direction: 'asc' | 'desc';
 }
 
-// ── API (cliente → /api/tickets) ─────────────────────────────────────────────
+// ── API (cliente -> /api/tickets) ─────────────────────────────────────────────
 
 export interface TicketsApiResponse {
   tickets: Ticket[];
   brands: string[];
-  nextCursor?: string | null; // null/undefined = última página
+  nextCursor?: string | null;
 }
 
-// ── API (servidor → n8n) ──────────────────────────────────────────────────────
+// ── API (servidor -> n8n) ──────────────────────────────────────────────────────
 
 export interface TicketsRequest {
   dateStart: string;
@@ -90,4 +90,5 @@ export interface KpiData {
   subtipoMaisFrequenteCount: number;
   maiorRecorrenciaGeral: { dias: number; subtipos: string[] } | null;
   maiorRecorrenciaCliente: { recorrencia: number; entries: Array<{ cliente: string; subtipo: string }> } | null;
+  problemaMaisRelatadoPorCliente: { count: number; entries: Array<{ cliente: string; subtipo: string }> } | null;
 }

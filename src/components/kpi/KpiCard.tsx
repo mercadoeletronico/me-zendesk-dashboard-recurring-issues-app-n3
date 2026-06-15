@@ -5,23 +5,23 @@ interface KpiCardProps {
   value: string | number;
   subtitle?: string;
   subtitleList?: string[];
-  activeIndices?: number[];                   // quais tags estão com filtro ativo
-  onSubtitleClick?: (index: number) => void;  // callback ao clicar numa tag
-  accent?: 'blue' | 'green' | 'amber' | 'purple' | 'rose';
+  activeIndices?: number[];
+  onSubtitleClick?: (index: number) => void;
+  accent?: 'blue' | 'green' | 'amber' | 'purple' | 'rose' | 'teal';
   icon?: React.ReactNode;
 }
 
-const accentMap     = { blue: 'border-blue-400', green: 'border-emerald-400', amber: 'border-amber-400', purple: 'border-violet-400', rose: 'border-rose-400' };
-const valueColorMap = { blue: 'text-blue-700',   green: 'text-emerald-700',   amber: 'text-amber-700',   purple: 'text-violet-700',   rose: 'text-rose-700'  };
-const tagColorMap   = { blue: 'bg-blue-100 text-blue-700', green: 'bg-emerald-100 text-emerald-700', amber: 'bg-amber-100 text-amber-700', purple: 'bg-violet-100 text-violet-700', rose: 'bg-rose-100 text-rose-700' };
-const tagActiveMap  = { blue: 'bg-blue-500 text-white',    green: 'bg-emerald-500 text-white',        amber: 'bg-amber-500 text-white',    purple: 'bg-violet-500 text-white',    rose: 'bg-rose-500 text-white'    };
+const accentMap     = { blue: 'border-blue-400', green: 'border-emerald-400', amber: 'border-amber-400', purple: 'border-violet-400', rose: 'border-rose-400', teal: 'border-teal-400' };
+const valueColorMap = { blue: 'text-blue-700',   green: 'text-emerald-700',   amber: 'text-amber-700',   purple: 'text-violet-700',   rose: 'text-rose-700',   teal: 'text-teal-700'  };
+const tagColorMap   = { blue: 'bg-blue-100 text-blue-700', green: 'bg-emerald-100 text-emerald-700', amber: 'bg-amber-100 text-amber-700', purple: 'bg-violet-100 text-violet-700', rose: 'bg-rose-100 text-rose-700', teal: 'bg-teal-100 text-teal-700' };
+const tagActiveMap  = { blue: 'bg-blue-500 text-white',    green: 'bg-emerald-500 text-white',        amber: 'bg-amber-500 text-white',    purple: 'bg-violet-500 text-white',    rose: 'bg-rose-500 text-white',    teal: 'bg-teal-500 text-white'    };
 
 export function KpiCard({
   label, value, subtitle, subtitleList,
   activeIndices = [], onSubtitleClick,
   accent = 'blue', icon,
 }: KpiCardProps) {
-  const hasList = subtitleList && subtitleList.length > 0;
+  const hasList    = subtitleList && subtitleList.length > 0;
   const isClickable = !!onSubtitleClick;
 
   return (

@@ -60,7 +60,7 @@ function applyAllFilters(tickets: Ticket[], chartFilter: ChartFilter, preFilter:
     // ── Filtros de formulário (dropdowns) ─────────────────────────────────
     if (preFilter.brand   && t.brand   !== preFilter.brand)  return false;
     if (preTipoPT         && t.tipo    !== preTipoPT)        return false;
-    if (preFilter.subtipo && t.subtipo !== preFilter.subtipo) return false;
+    if (preFilter.subtipo && !t.subtipo.toLowerCase().includes(preFilter.subtipo.toLowerCase())) return false;
     return true;
   });
 }

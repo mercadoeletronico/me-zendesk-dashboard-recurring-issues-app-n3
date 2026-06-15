@@ -36,25 +36,26 @@ export function computeKpis(tickets: Ticket[]): KpiData {
     return {
       total: 0,
       clientesAtivos: 0,
-      subtipoMaisFrequente: '—',
+      subtipoMaisFrequente: '\u2014',
       subtipoMaisFrequenteCount: 0,
       maiorRecorrenciaGeral: null,
       maiorRecorrenciaCliente: null,
+      problemaMaisRelatadoPorCliente: null,
     };
   }
 
   const clienteSet = new Set(tickets.map((t) => t.cliente));
 
-  // Subtipo mais frequente
+  // Subtipo mais frequente (geral)
   const subtipoCount = new Map<string, number>();
   for (const t of tickets) {
     subtipoCount.set(t.subtipo, (subtipoCount.get(t.subtipo) ?? 0) + 1);
   }
-  const sortedSubtipos        = [...subtipoCount.entries()].sort((a, b) => b[1] - a[1]);
-  const subtipoMaisFrequente  = sortedSubtipos[0]?.[0] ?? '—';
+  const sortedSubtipos            = [...subtipoCount.entries()].sort((a, b) => b[1] - a[1]);
+  const subtipoMaisFrequente      = sortedSubtipos[0]?.[0] ?? '\u2014';
   const subtipoMaisFrequenteCount = sortedSubtipos[0]?.[1] ?? 0;
 
-  // Maior Recorrência Geral (distinct dates por subtipo)
+  // Maior Recorrencia Geral (distinct dates por subtipo)
   const subtipoDateMap = new Map<string, Set<string>>();
   for (const t of tickets) {
     if (!t.subtipo || t.subtipo === '-') continue;
@@ -74,7 +75,7 @@ export function computeKpis(tickets: Ticket[]): KpiData {
     maiorRecorrenciaGeral = { dias: maxDias, subtipos };
   }
 
-  // Maior Recorrência por Cliente
+  // Maior Recorrencia por Cliente (max recorrencia field)
   const validTickets = tickets.filter((t) => t.subtipo && t.subtipo !== '-');
   let maiorRecorrenciaCliente: { recorrencia: number; entries: Array<{ cliente: string; subtipo: string }> } | null = null;
   if (validTickets.length > 0) {
@@ -93,6 +94,31 @@ export function computeKpis(tickets: Ticket[]): KpiData {
     maiorRecorrenciaCliente = entries.length > 0 ? { recorrencia: maxRec, entries } : null;
   }
 
+  // Problema Mais Relatado por Cliente:
+  // par (cliente, subtipo) com maior numero de tickets
+  let problemaMaisRelatadoPorCliente: { count: number; entries: Array<{ cliente: string; subtipo: string }> } | null = null;
+  if (validTickets.length > 0) {
+    const pairCount = new Map<string, number>();
+    for (const t of validTickets) {
+      const key = `${t.cliente}||${t.subtipo}`;
+      pairCount.set(key, (pairCount.get(key) ?? 0) + 1);
+    }
+    const maxCount = Math.max(...pairCount.values());
+    const seen     = new Set<string>();
+    const entries: Array<{ cliente: string; subtipo: string }> = [];
+    [...pairCount.entries()]
+      .filter(([, c]) => c === maxCount)
+      .sort(([a], [b]) => a.localeCompare(b, 'pt-BR'))
+      .forEach(([key]) => {
+        if (!seen.has(key)) {
+          seen.add(key);
+          const [cliente, subtipo] = key.split('||');
+          entries.push({ cliente, subtipo });
+        }
+      });
+    problemaMaisRelatadoPorCliente = entries.length > 0 ? { count: maxCount, entries } : null;
+  }
+
   return {
     total: tickets.length,
     clientesAtivos: clienteSet.size,
@@ -100,5 +126,6 @@ export function computeKpis(tickets: Ticket[]): KpiData {
     subtipoMaisFrequenteCount,
     maiorRecorrenciaGeral,
     maiorRecorrenciaCliente,
+    problemaMaisRelatadoPorCliente,
   };
 }
