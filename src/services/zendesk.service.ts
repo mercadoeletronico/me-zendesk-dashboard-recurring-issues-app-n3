@@ -42,6 +42,7 @@ interface ZdTicketRaw {
   organization_id?: number | null;
   brand_id?: number | null;
   created_at?: string;
+  updated_at?: string;
   custom_fields?: Array<{ id: number; value: string | null }>;
 }
 
@@ -352,12 +353,14 @@ function normalizeTickets(
     const subtipo = resolveComposite(cf, chain);
     const brand   = r.brand_id ? (brandMap[r.brand_id] ?? 'brand_' + r.brand_id) : '-';
     const cliente = r.organization_id ? (orgMap[r.organization_id] ?? 'org_' + r.organization_id) : 'Sem organizacao';
-    const data    = (r.created_at ?? '').slice(0, 10);
-    const day     = data ? parseInt(data.slice(8, 10), 10) : 0;
-    const status  = STATUS_PT[r.status ?? ''] ?? r.status ?? '-';
+    const data      = (r.created_at ?? '').slice(0, 10);
+    const day       = data ? parseInt(data.slice(8, 10), 10) : 0;
+    const status    = STATUS_PT[r.status ?? ''] ?? r.status ?? '-';
+    const createdAt = r.created_at ?? '';
+    const updatedAt = r.updated_at ?? r.created_at ?? '';
     return {
       id: r.id, subject: r.subject ?? '(sem titulo)',
-      cliente, tipo, subtipo, brand, status, data, dayOfMonth: day, recorrencia: 0,
+      cliente, tipo, subtipo, brand, status, data, createdAt, updatedAt, dayOfMonth: day, recorrencia: 0,
     };
   });
 }

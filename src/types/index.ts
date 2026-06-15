@@ -9,6 +9,8 @@ export interface Ticket {
   brand: string;
   status: string;
   data: string;       // YYYY-MM-DD (UTC)
+  createdAt: string;  // ISO datetime (UTC)
+  updatedAt: string;  // ISO datetime (UTC) — data de resolucao para tickets fechados
   dayOfMonth: number;
   recorrencia: number;
 }
