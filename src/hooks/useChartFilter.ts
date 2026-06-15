@@ -7,9 +7,15 @@ export function useChartFilter() {
   const clearChartFilter   = useDashboardStore((s) => s.clearChartFilter);
   const clearChartFilterKey = useDashboardStore((s) => s.clearChartFilterKey);
 
+  // Toggle de cliente: adiciona se nao existe, remove se ja existe
   const handleClienteClick = useCallback((cliente: string) => {
-    chartFilter.cliente === cliente ? clearChartFilterKey('cliente') : setChartFilter({ cliente });
-  }, [chartFilter.cliente, setChartFilter, clearChartFilterKey]);
+    const current = chartFilter.clientes;
+    if (current.includes(cliente)) {
+      setChartFilter({ clientes: current.filter((c) => c !== cliente) });
+    } else {
+      setChartFilter({ clientes: [...current, cliente] });
+    }
+  }, [chartFilter.clientes, setChartFilter]);
 
   const handleTipoClick = useCallback((tipo: string) => {
     chartFilter.tipo === tipo ? clearChartFilterKey('tipo') : setChartFilter({ tipo });
@@ -29,13 +35,13 @@ export function useChartFilter() {
   }, [chartFilter.heatmap, setChartFilter, clearChartFilterKey]);
 
   const hasActiveFilter = (
-    chartFilter.cliente !== null || chartFilter.tipo !== null ||
+    chartFilter.clientes.length > 0 || chartFilter.tipo !== null ||
     chartFilter.subtipo !== null || chartFilter.heatmap !== null
   );
 
-  const activeFilterCount = [
-    chartFilter.cliente, chartFilter.tipo, chartFilter.subtipo, chartFilter.heatmap,
-  ].filter(Boolean).length;
+  const activeFilterCount =
+    chartFilter.clientes.length +
+    [chartFilter.tipo, chartFilter.subtipo, chartFilter.heatmap].filter(Boolean).length;
 
   return {
     chartFilter, hasActiveFilter, activeFilterCount,

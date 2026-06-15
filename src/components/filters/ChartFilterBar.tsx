@@ -19,20 +19,33 @@ function Chip({ label, value, onRemove }: { label: string; value: string; onRemo
 }
 
 export function ChartFilterBar() {
-  const { chartFilter, hasActiveFilter, clearChartFilter, clearChartFilterKey } = useChartFilter();
+  const { chartFilter, hasActiveFilter, clearChartFilter, setChartFilter, clearChartFilterKey } = useChartFilter();
 
   if (!hasActiveFilter) return null;
 
   return (
     <div className="flex flex-wrap items-center gap-2 px-4 py-3 bg-blue-50 border border-blue-100 rounded-xl">
       <span className="text-xs text-blue-600 font-semibold uppercase tracking-wide mr-1">Filtros ativos:</span>
-      {chartFilter.cliente && <Chip label="Cliente" value={chartFilter.cliente} onRemove={() => clearChartFilterKey('cliente')} />}
+
+      {/* Um chip por cliente selecionado */}
+      {chartFilter.clientes.map((cliente) => (
+        <Chip
+          key={cliente}
+          label="Cliente"
+          value={cliente}
+          onRemove={() =>
+            setChartFilter({ clientes: chartFilter.clientes.filter((c) => c !== cliente) })
+          }
+        />
+      ))}
+
       {chartFilter.tipo    && <Chip label="Tipo"    value={chartFilter.tipo}    onRemove={() => clearChartFilterKey('tipo')}    />}
       {chartFilter.subtipo && <Chip label="Subtipo" value={chartFilter.subtipo} onRemove={() => clearChartFilterKey('subtipo')} />}
       {chartFilter.heatmap && (
         <Chip label="Heatmap" value={`${chartFilter.heatmap.subtipo} · ${chartFilter.heatmap.data}`}
           onRemove={() => clearChartFilterKey('heatmap')} />
       )}
+
       <button onClick={clearChartFilter}
         className="ml-auto text-xs text-blue-600 hover:text-blue-800 font-medium underline underline-offset-2">
         Limpar tudo

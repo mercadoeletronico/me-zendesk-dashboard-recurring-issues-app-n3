@@ -9,6 +9,10 @@ interface SearchInputProps {
   placeholder?: string;
   className?: string;
   maxSuggestions?: number;
+  /** Chamado quando usuario clica em uma sugestao (modo selecao).
+   *  Quando fornecido, a selecao chama onSelect(value) + onChange('')
+   *  em vez de apenas onChange(value). */
+  onSelect?: (value: string) => void;
 }
 
 export function SearchInput({
@@ -18,6 +22,7 @@ export function SearchInput({
   placeholder = 'Buscar...',
   className = '',
   maxSuggestions = 8,
+  onSelect,
 }: SearchInputProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -45,9 +50,16 @@ export function SearchInput({
   }, [onChange]);
 
   const handleSelect = useCallback((v: string) => {
-    onChange(v);
+    if (onSelect) {
+      // Modo selecao: adiciona ao filtro e limpa o campo
+      onSelect(v);
+      onChange('');
+    } else {
+      // Modo preenchimento: preenche o campo com a sugestao
+      onChange(v);
+    }
     setOpen(false);
-  }, [onChange]);
+  }, [onChange, onSelect]);
 
   const handleClear = useCallback(() => {
     onChange('');

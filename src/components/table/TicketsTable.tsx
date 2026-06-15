@@ -19,36 +19,34 @@ function SortIcon({ direction }: { direction: 'asc' | 'desc' | null }) {
 /** Gera e faz download do arquivo Excel com os tickets filtrados */
 function exportToExcel(tickets: Ticket[]) {
   const rows = tickets.map((t) => ({
-    'ID':          t.id,
-    'Data':        formatDate(t.data),
-    'Cliente':     t.cliente,
-    'Tipo':        t.tipo,
-    'Subtipo':     t.subtipo,
-    'Marca':       t.brand,
-    'Status':      t.status,
-    'Recorrência': t.recorrencia,
-    'Link':        `https://mercadoe.zendesk.com/agent/tickets/${t.id}`,
+    'ID':       t.id,
+    'Data':     formatDate(t.data),
+    'Cliente':  t.cliente,
+    'Tipo':     t.tipo,
+    'Subtipo':  t.subtipo,
+    'Título':   t.subject,
+    'Marca':    t.brand,
+    'Status':   t.status,
+    'Link':     `https://mercadoe.zendesk.com/agent/tickets/${t.id}`,
   }));
 
   const ws = XLSX.utils.json_to_sheet(rows);
 
-  // Larguras de coluna
   ws['!cols'] = [
     { wch: 10 },  // ID
     { wch: 12 },  // Data
     { wch: 35 },  // Cliente
     { wch: 14 },  // Tipo
     { wch: 40 },  // Subtipo
+    { wch: 60 },  // Título
     { wch: 16 },  // Marca
     { wch: 10 },  // Status
-    { wch: 12 },  // Recorrência
     { wch: 55 },  // Link
   ];
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Tickets');
 
-  // Nome do arquivo com data/hora
   const now = new Date();
   const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
   XLSX.writeFile(wb, `zendesk_tickets_${stamp}.xlsx`);
@@ -63,7 +61,6 @@ export function TicketsTable() {
   const [tipoFilter, setTipoFilter] = useState('');
   const [clienteFilter, setClienteFilter] = useState('');
 
-  // Dropdown options derived from current tickets
   const tipos = useMemo(() => {
     const set = new Set(tickets.map((t) => t.tipo));
     return Array.from(set).sort();
@@ -74,7 +71,6 @@ export function TicketsTable() {
     return Array.from(set).sort();
   }, [tickets]);
 
-  // Filter + search
   const filtered = useMemo(() => {
     const term = search.toLowerCase();
     return tickets.filter((t) => {
@@ -88,7 +84,6 @@ export function TicketsTable() {
     });
   }, [tickets, search, tipoFilter, clienteFilter]);
 
-  // Sort
   const sorted = useMemo(() => {
     const { key, direction } = sortConfig;
     return [...filtered].sort((a, b) => {
@@ -133,14 +128,14 @@ export function TicketsTable() {
   };
 
   const cols: Array<{ key: SortableKey; label: string; className?: string }> = [
-    { key: 'id', label: 'ID', className: 'w-20' },
-    { key: 'data', label: 'Data', className: 'w-28' },
+    { key: 'id',      label: 'ID',       className: 'w-20' },
+    { key: 'data',    label: 'Data',     className: 'w-28' },
     { key: 'cliente', label: 'Cliente' },
-    { key: 'tipo', label: 'Tipo', className: 'w-24' },
-    { key: 'subtipo', label: 'Subtipo' },
-    { key: 'brand', label: 'Marca', className: 'w-28' },
-    { key: 'status', label: 'Status', className: 'w-24' },
-    { key: 'recorrencia', label: 'Recor.', className: 'w-16 text-center' },
+    { key: 'tipo',    label: 'Tipo',     className: 'w-24' },
+    { key: 'subtipo', label: 'Problema' },
+    { key: 'subject', label: 'Título' },
+    { key: 'brand',   label: 'Marca',    className: 'w-28' },
+    { key: 'status',  label: 'Status',   className: 'w-24' },
   ];
 
   return (
@@ -153,7 +148,6 @@ export function TicketsTable() {
           </span>
         </h3>
 
-        {/* Search */}
         <input
           type="text"
           placeholder="Buscar..."
@@ -163,7 +157,6 @@ export function TicketsTable() {
           style={{ '--tw-ring-color': '#1a56db' } as React.CSSProperties}
         />
 
-        {/* Tipo dropdown */}
         <select
           value={tipoFilter}
           onChange={(e) => { setTipoFilter(e.target.value); setPage(0); }}
@@ -173,7 +166,6 @@ export function TicketsTable() {
           {tipos.map((t) => <option key={t} value={t}>{t}</option>)}
         </select>
 
-        {/* Cliente dropdown */}
         <select
           value={clienteFilter}
           onChange={(e) => { setClienteFilter(e.target.value); setPage(0); }}
@@ -183,7 +175,6 @@ export function TicketsTable() {
           {clientes.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
 
-        {/* Export button — exports all filtered+sorted rows, not just current page */}
         {sorted.length > 0 && (
           <button
             onClick={() => exportToExcel(sorted)}
@@ -193,7 +184,6 @@ export function TicketsTable() {
             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1a56db'; }}
             title={`Exportar ${sorted.length} tickets para Excel`}
           >
-            {/* Download/spreadsheet icon */}
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round"
                 d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
@@ -247,15 +237,13 @@ export function TicketsTable() {
                     <td className="px-3 py-2.5 text-gray-600 max-w-[200px] truncate" title={ticket.subtipo}>
                       {ticket.subtipo}
                     </td>
+                    <td className="px-3 py-2.5 text-gray-600 max-w-[260px] truncate" title={ticket.subject}>
+                      {ticket.subject}
+                    </td>
                     <td className="px-3 py-2.5 text-gray-600 whitespace-nowrap">{ticket.brand}</td>
                     <td className="px-3 py-2.5">
                       <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${statusBadge(ticket.status)}`}>
                         {ticket.status}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2.5 text-center">
-                      <span className={`font-bold ${ticket.recorrencia > 2 ? 'text-rose-500' : 'text-gray-500'}`}>
-                        {ticket.recorrencia}
                       </span>
                     </td>
                   </tr>
@@ -264,41 +252,20 @@ export function TicketsTable() {
             </table>
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-4">
               <p className="text-xs text-gray-500">
                 Página {page + 1} de {totalPages} · {filtered.length} tickets
               </p>
               <div className="flex gap-1">
-                <button
-                  onClick={() => setPage(0)}
-                  disabled={page === 0}
-                  className="px-2 py-1 rounded border border-gray-200 text-xs disabled:opacity-40 hover:bg-gray-50 transition-colors"
-                >
-                  «
-                </button>
-                <button
-                  onClick={() => setPage((p) => Math.max(0, p - 1))}
-                  disabled={page === 0}
-                  className="px-2 py-1 rounded border border-gray-200 text-xs disabled:opacity-40 hover:bg-gray-50 transition-colors"
-                >
-                  ‹
-                </button>
-                <button
-                  onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                  disabled={page >= totalPages - 1}
-                  className="px-2 py-1 rounded border border-gray-200 text-xs disabled:opacity-40 hover:bg-gray-50 transition-colors"
-                >
-                  ›
-                </button>
-                <button
-                  onClick={() => setPage(totalPages - 1)}
-                  disabled={page >= totalPages - 1}
-                  className="px-2 py-1 rounded border border-gray-200 text-xs disabled:opacity-40 hover:bg-gray-50 transition-colors"
-                >
-                  »
-                </button>
+                <button onClick={() => setPage(0)} disabled={page === 0}
+                  className="px-2 py-1 rounded border border-gray-200 text-xs disabled:opacity-40 hover:bg-gray-50 transition-colors">«</button>
+                <button onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0}
+                  className="px-2 py-1 rounded border border-gray-200 text-xs disabled:opacity-40 hover:bg-gray-50 transition-colors">‹</button>
+                <button onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}
+                  className="px-2 py-1 rounded border border-gray-200 text-xs disabled:opacity-40 hover:bg-gray-50 transition-colors">›</button>
+                <button onClick={() => setPage(totalPages - 1)} disabled={page >= totalPages - 1}
+                  className="px-2 py-1 rounded border border-gray-200 text-xs disabled:opacity-40 hover:bg-gray-50 transition-colors">»</button>
               </div>
             </div>
           )}

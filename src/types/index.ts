@@ -16,7 +16,7 @@ export interface Ticket {
 // ── Filtros ───────────────────────────────────────────────────────────────────
 
 export interface ChartFilter {
-  cliente: string | null;
+  clientes: string[];
   tipo: string | null;
   subtipo: string | null;
   heatmap: { subtipo: string; data: string } | null;
@@ -25,7 +25,7 @@ export interface ChartFilter {
 export interface PreFilter {
   brand: string;        // 'ME Buyers' | 'ME Suppliers' | ''
   tipoZd: string;       // 'incident' | 'question' | 'problem' | 'task' | ''
-  subtipo: string;
+  subtipos: string[];
   dateStart: string;
   dateEnd: string;
 }

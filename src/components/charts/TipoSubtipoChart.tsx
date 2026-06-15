@@ -91,7 +91,7 @@ function SubtipoChart() {
 export function TipoSubtipoChart() {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-      <h3 className="text-sm font-semibold text-gray-700 mb-3">Tickets por Subtipo</h3>
+      <h3 className="text-sm font-semibold text-gray-700 mb-3">Tickets por Problema (Subtipo)</h3>
       <SubtipoChart />
       <p className="text-xs text-gray-400 mt-2 text-center">Clique para filtrar</p>
     </div>

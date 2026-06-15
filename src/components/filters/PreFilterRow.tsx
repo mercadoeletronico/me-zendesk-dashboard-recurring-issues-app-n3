@@ -1,13 +1,13 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useDashboardStore } from '@/store/dashboardStore';
 import { SearchInput } from '@/components/common/SearchInput';
 
 const TIPOS = [
   { value: '',         label: 'Todos os Tipos' },
   { value: 'incident', label: 'Incidente'      },
-  { value: 'question', label: 'D\u00favida'   },
+  { value: 'question', label: 'Dúvida'   },
   { value: 'problem',  label: 'Problema'       },
   { value: 'task',     label: 'Tarefa'         },
 ];
@@ -24,7 +24,8 @@ export function PreFilterRow() {
   const tickets      = useDashboardStore((s) => s.tickets);
   const setPreFilter = useDashboardStore((s) => s.setPreFilter);
 
-  // Subtipos unicos filtrados por brand e tipo (para sugestoes)
+  const [subtipoSearch, setSubtipoSearch] = useState('');
+
   const subtipoOptions = useMemo(() => {
     const tipoPT = preFilter.tipoZd ? (TIPO_ZD_PT[preFilter.tipoZd] ?? '') : '';
     const set = new Set<string>();
@@ -36,12 +37,23 @@ export function PreFilterRow() {
     return Array.from(set).sort();
   }, [tickets, preFilter.brand, preFilter.tipoZd]);
 
+  const availableOptions = useMemo(
+    () => subtipoOptions.filter((o) => !preFilter.subtipos.includes(o)),
+    [subtipoOptions, preFilter.subtipos]
+  );
+
+  const handleSubtipoSelect = (value: string) => {
+    if (!preFilter.subtipos.includes(value)) {
+      setPreFilter({ subtipos: [...preFilter.subtipos, value] });
+    }
+  };
+
   return (
     <div className="flex flex-wrap gap-3 items-end">
-      {/* Data inicio */}
+      {/* Data início */}
       <div className="flex flex-col gap-1">
         <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-          Data in\u00edcio
+          Data início
         </label>
         <input
           type="date"
@@ -73,7 +85,7 @@ export function PreFilterRow() {
         </label>
         <select
           value={preFilter.tipoZd}
-          onChange={(e) => setPreFilter({ tipoZd: e.target.value, subtipo: '' })}
+          onChange={(e) => setPreFilter({ tipoZd: e.target.value, subtipos: [] })}
           className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700
                      shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
@@ -81,18 +93,19 @@ export function PreFilterRow() {
         </select>
       </div>
 
-      {/* Subtipo — search input com sugestoes */}
+      {/* Problema (Subtipo) — multi-seleção */}
       <div className="flex flex-col gap-1">
         <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-          Subtipo
+          Problema (Subtipo)
         </label>
         <SearchInput
-          value={preFilter.subtipo}
-          onChange={(v) => setPreFilter({ subtipo: v })}
-          options={subtipoOptions}
-          placeholder="Buscar subtipo..."
-          className="w-56"
+          value={subtipoSearch}
+          onChange={setSubtipoSearch}
+          options={availableOptions}
+          placeholder="Buscar problema..."
+          className="w-64"
           maxSuggestions={10}
+          onSelect={handleSubtipoSelect}
         />
       </div>
     </div>

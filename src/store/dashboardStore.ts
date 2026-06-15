@@ -29,13 +29,13 @@ interface DashboardState {
 }
 
 const DEFAULT_CHART_FILTER: ChartFilter = {
-  cliente: null, tipo: null, subtipo: null, heatmap: null,
+  clientes: [], tipo: null, subtipo: null, heatmap: null,
 };
 
 const DEFAULT_PRE_FILTER: PreFilter = {
   brand:     'ME Buyers',
   tipoZd:    'incident',
-  subtipo:   '',
+  subtipos:  [],
   dateStart: daysAgo(7),
   dateEnd:   today(),
 };
@@ -51,7 +51,7 @@ function applyAllFilters(tickets: Ticket[], chartFilter: ChartFilter, preFilter:
   const preTipoPT = preFilter.tipoZd ? TIPO_ZD_PT[preFilter.tipoZd] ?? '' : '';
   return tickets.filter((t) => {
     // ── Filtros de gráfico (clique nos charts) ─────────────────────────────
-    if (chartFilter.cliente && t.cliente !== chartFilter.cliente) return false;
+    if (chartFilter.clientes.length > 0 && !chartFilter.clientes.includes(t.cliente)) return false;
     if (chartFilter.tipo    && t.tipo    !== chartFilter.tipo)    return false;
     if (chartFilter.subtipo && t.subtipo !== chartFilter.subtipo) return false;
     if (chartFilter.heatmap) {
@@ -60,7 +60,7 @@ function applyAllFilters(tickets: Ticket[], chartFilter: ChartFilter, preFilter:
     // ── Filtros de formulário (dropdowns) ─────────────────────────────────
     if (preFilter.brand   && t.brand   !== preFilter.brand)  return false;
     if (preTipoPT         && t.tipo    !== preTipoPT)        return false;
-    if (preFilter.subtipo && !t.subtipo.toLowerCase().includes(preFilter.subtipo.toLowerCase())) return false;
+    if (preFilter.subtipos.length > 0 && !preFilter.subtipos.includes(t.subtipo)) return false;
     return true;
   });
 }
@@ -119,7 +119,7 @@ export const useDashboardStore = create<DashboardState>()(
 
       clearChartFilterKey: (key) => {
         const { tickets, preFilter, chartFilter: current } = get();
-        const newFilter = { ...current, [key]: null };
+        const newFilter = { ...current, [key]: DEFAULT_CHART_FILTER[key] };
         set({ chartFilter: newFilter, filteredTickets: applyAllFilters(tickets, newFilter, preFilter) });
       },
 
@@ -128,7 +128,7 @@ export const useDashboardStore = create<DashboardState>()(
       setPreFilter: (filter) => {
         const state = get();
         const newPreFilter = { ...state.preFilter, ...filter };
-        const isDisplayFilter = 'brand' in filter || 'tipoZd' in filter || 'subtipo' in filter;
+        const isDisplayFilter = 'brand' in filter || 'tipoZd' in filter || 'subtipos' in filter;
         if (isDisplayFilter && state.tickets.length > 0) {
           set({
             preFilter: newPreFilter,

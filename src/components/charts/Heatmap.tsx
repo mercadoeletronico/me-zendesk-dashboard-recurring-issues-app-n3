@@ -64,7 +64,7 @@ export function Heatmap() {
   if (tickets.length === 0) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Heatmap de Tickets por Subtipo</h3>
+        <h3 className="text-sm font-semibold text-gray-700 mb-3">Heatmap de Tickets por Problema (Subtipo)</h3>
         <EmptyState description="Sem dados para o período selecionado." />
       </div>
     );
@@ -76,7 +76,7 @@ export function Heatmap() {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-gray-700">Heatmap de Tickets por Subtipo</h3>
+        <h3 className="text-sm font-semibold text-gray-700">Heatmap de Tickets por Problema (Subtipo)</h3>
         <div className="flex items-center gap-2 text-xs text-gray-500">
           <span className="inline-block w-4 h-4 rounded" style={{ background: heatmapColor(0, 10) }} />
           <span>0</span>

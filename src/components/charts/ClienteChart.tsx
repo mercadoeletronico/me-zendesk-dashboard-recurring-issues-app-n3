@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -20,22 +20,21 @@ import { SearchInput } from '@/components/common/SearchInput';
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export function ClienteChart() {
-  const tickets = useDashboardStore((s) => s.filteredTickets);
+  const tickets    = useDashboardStore((s) => s.filteredTickets);
+  const allTickets = useDashboardStore((s) => s.tickets);
   const { chartFilter, handleClienteClick } = useChartFilter();
 
   const [search, setSearch] = useState('');
 
-  const handleClear = useCallback(() => setSearch(''), []);
-  void handleClear; // usado apenas para manter a assinatura — SearchInput ja chama onChange('')
-
-  // Todos os clientes unicos (para sugestoes)
+  // Todos os clientes unicos dos tickets brutos (para sugestoes do SearchInput)
+  // Usa tickets brutos para que os clientes aparecam mesmo quando ha filtro ativo
   const allClientes = useMemo(() => {
     const set = new Set<string>();
-    for (const t of tickets) { if (t.cliente) set.add(t.cliente); }
+    for (const t of allTickets) { if (t.cliente) set.add(t.cliente); }
     return Array.from(set).sort();
-  }, [tickets]);
+  }, [allTickets]);
 
-  // Clientes filtrados pelo search (para o grafico)
+  // Contagem de tickets por cliente (a partir de filteredTickets) + filtro por busca
   const { labels, data } = useMemo(() => {
     const counts = new Map<string, number>();
     for (const t of tickets) {
@@ -52,8 +51,11 @@ export function ClienteChart() {
     };
   }, [tickets, search]);
 
+  // Barras dimmer quando ha clientes selecionados e o cliente nao e um deles
   const backgroundColors = labels.map((label, i) => {
-    if (chartFilter.cliente && chartFilter.cliente !== label) return `${getColor(i)}55`;
+    if (chartFilter.clientes.length > 0 && !chartFilter.clientes.includes(label)) {
+      return `${getColor(i)}55`;
+    }
     return getColor(i);
   });
 
@@ -94,7 +96,7 @@ export function ClienteChart() {
           maxRotation: 35,
           callback: function(this: unknown, _: unknown, index: number) {
             const label = labels[index] ?? '';
-            return label.length > 14 ? label.slice(0, 13) + '\u2026' : label;
+            return label.length > 14 ? label.slice(0, 13) + '…' : label;
           },
         },
       },
@@ -111,11 +113,6 @@ export function ClienteChart() {
       <div className="flex items-center justify-between mb-3 gap-3">
         <h3 className="text-sm font-semibold text-gray-700 shrink-0">
           Tickets por Cliente
-          {chartFilter.cliente && (
-            <span className="ml-2 text-blue-500 font-normal text-xs">
-              (filtrado: {chartFilter.cliente})
-            </span>
-          )}
         </h3>
 
         <SearchInput
@@ -124,18 +121,19 @@ export function ClienteChart() {
           options={allClientes}
           placeholder="Buscar cliente..."
           className="flex-1 max-w-xs"
+          onSelect={handleClienteClick}
         />
       </div>
 
       {labels.length === 0 ? (
-        <EmptyState description={search ? `Nenhum cliente encontrado para "${search}".` : 'Sem dados para o per\u00edodo selecionado.'} />
+        <EmptyState description={search ? `Nenhum cliente encontrado para "${search}".` : 'Sem dados para o período selecionado.'} />
       ) : (
         <>
           <div className="h-64">
             <Bar data={chartData} options={options} />
           </div>
           <p className="text-xs text-gray-400 mt-2 text-center">
-            Clique em uma barra para filtrar
+            Clique em uma barra ou busque um cliente para filtrar (multipla seleção)
           </p>
         </>
       )}

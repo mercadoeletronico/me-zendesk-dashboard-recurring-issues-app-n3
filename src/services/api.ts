@@ -40,7 +40,7 @@ export async function fetchTicketsPage(
       dateEnd:       filter.dateEnd,
       brand:         filter.brand,
       tipoFilter:    filter.tipoZd,
-      subtipoFilter: filter.subtipo,
+      subtipoFilter: filter.subtipos.join(","),
       cursor,
     }),
     signal,
