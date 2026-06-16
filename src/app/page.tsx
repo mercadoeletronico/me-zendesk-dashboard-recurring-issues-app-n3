@@ -8,6 +8,7 @@ import { ClienteChart } from '@/components/charts/ClienteChart';
 import { TipoSubtipoChart } from '@/components/charts/TipoSubtipoChart';
 import { Heatmap } from '@/components/charts/Heatmap';
 import { TicketsTable } from '@/components/table/TicketsTable';
+import { KeywordChart } from '@/components/charts/KeywordChart';
 import { LoadingBanner } from '@/components/common/LoadingBanner';
 import { useDashboardStore } from '@/store/dashboardStore';
 import { useTickets } from '@/hooks/useTickets';
@@ -55,6 +56,8 @@ function DashboardContent() {
             <section><KpiGrid /></section>
 
             <ChartFilterBar />
+
+            <section><KeywordChart /></section>
 
             {showProgressBanner && (
               <div className="flex items-center gap-3 px-4 py-2.5 bg-blue-50 border border-blue-100 rounded-lg text-blue-700 text-sm">

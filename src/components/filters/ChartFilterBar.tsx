@@ -39,6 +39,10 @@ export function ChartFilterBar() {
         />
       ))}
 
+      {chartFilter.keywords.map((kw) => (
+        <Chip key={kw} label="Palavra-chave" value={kw}
+          onRemove={() => setChartFilter({ keywords: chartFilter.keywords.filter((k) => k !== kw) })} />
+      ))}
       {chartFilter.tipo    && <Chip label="Tipo"    value={chartFilter.tipo}    onRemove={() => clearChartFilterKey('tipo')}    />}
       {chartFilter.subtipo && <Chip label="Subtipo" value={chartFilter.subtipo} onRemove={() => clearChartFilterKey('subtipo')} />}
       {chartFilter.heatmap && (

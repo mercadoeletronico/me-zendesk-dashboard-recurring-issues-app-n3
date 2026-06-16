@@ -22,6 +22,7 @@ export interface ChartFilter {
   tipo: string | null;
   subtipo: string | null;
   heatmap: { subtipo: string; data: string } | null;
+  keywords: string[];
 }
 
 export interface PreFilter {

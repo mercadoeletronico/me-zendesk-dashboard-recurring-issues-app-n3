@@ -25,6 +25,15 @@ export function useChartFilter() {
     chartFilter.subtipo === subtipo ? clearChartFilterKey('subtipo') : setChartFilter({ subtipo });
   }, [chartFilter.subtipo, setChartFilter, clearChartFilterKey]);
 
+  const handleKeywordClick = useCallback((keyword: string) => {
+    const current = chartFilter.keywords;
+    if (current.includes(keyword)) {
+      setChartFilter({ keywords: current.filter((k) => k !== keyword) });
+    } else {
+      setChartFilter({ keywords: [...current, keyword] });
+    }
+  }, [chartFilter.keywords, setChartFilter]);
+
   const handleHeatmapClick = useCallback((subtipo: string, data: string) => {
     const current = chartFilter.heatmap;
     if (current?.subtipo === subtipo && current?.data === data) {
@@ -36,16 +45,17 @@ export function useChartFilter() {
 
   const hasActiveFilter = (
     chartFilter.clientes.length > 0 || chartFilter.tipo !== null ||
-    chartFilter.subtipo !== null || chartFilter.heatmap !== null
+    chartFilter.subtipo !== null || chartFilter.heatmap !== null || chartFilter.keywords.length > 0
   );
 
   const activeFilterCount =
     chartFilter.clientes.length +
+    chartFilter.keywords.length +
     [chartFilter.tipo, chartFilter.subtipo, chartFilter.heatmap].filter(Boolean).length;
 
   return {
     chartFilter, hasActiveFilter, activeFilterCount,
-    handleClienteClick, handleTipoClick, handleSubtipoClick, handleHeatmapClick,
+    handleClienteClick, handleTipoClick, handleSubtipoClick, handleHeatmapClick, handleKeywordClick,
     setChartFilter, clearChartFilter, clearChartFilterKey,
   };
 }

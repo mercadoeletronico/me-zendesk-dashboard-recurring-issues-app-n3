@@ -29,7 +29,7 @@ interface DashboardState {
 }
 
 const DEFAULT_CHART_FILTER: ChartFilter = {
-  clientes: [], tipo: null, subtipo: null, heatmap: null,
+  clientes: [], tipo: null, subtipo: null, heatmap: null, keywords: [],
 };
 
 const DEFAULT_PRE_FILTER: PreFilter = {
@@ -57,6 +57,7 @@ function applyAllFilters(tickets: Ticket[], chartFilter: ChartFilter, preFilter:
     if (chartFilter.heatmap) {
       if (t.subtipo !== chartFilter.heatmap.subtipo || t.data !== chartFilter.heatmap.data) return false;
     }
+    if (chartFilter.keywords.length > 0 && !chartFilter.keywords.every((kw) => t.subject.toLowerCase().includes(kw.toLowerCase()))) return false;
     // ── Filtros de formulário (dropdowns) ─────────────────────────────────
     if (preFilter.brand   && t.brand   !== preFilter.brand)  return false;
     if (preTipoPT         && t.tipo    !== preTipoPT)        return false;
